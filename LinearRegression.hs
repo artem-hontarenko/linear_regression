@@ -1,35 +1,28 @@
-module LinearRegression(newThetas) where
+module LinearRegression(newWeights) where
 
 import Data.List 
-
--- Finds coefficients for a linear regression using gradient descent
--- linearRegression :: Coefficients -> LerningRate -> Data -> Iterations -> Coefficients
-linearRegression :: [Double] -> Double -> [[Double]] -> Int -> [Double]
-linearRegression coefficients alpha dataset iterations 
-    | iterations == 0 = coefficients
-    | otherwise = 
-        let thetas = newThetas coefficients alpha dataset
-        in linearRegression thetas alpha dataset (iterations - 1)
+import RandomSampling
 
 -- Calculate new values for t0 and t1
--- newThetas :: Coefficients -> LerningRate -> Data -> Coefficients
-newThetas :: [Double] -> Double -> [[Double]] -> [Double]
-newThetas thetas alpha dataset =
-    let deltas = map (calculateDelta thetas) dataset
-        adjustedDeltas = adjustDeltas deltas dataset
-        newt0 = t0 - alpha * avg deltas 
-        newt1 = t1 - alpha * avg adjustedDeltas
-    in [newt0, newt1]
+-- newWeights :: Coefficients -> LerningRate -> Data -> Coefficients
+newWeights :: [Double] -> Double -> [[Double]] -> IO [Double]
+newWeights weights alpha dataset = do
+    batch <- sampleDataUnique (length dataset `div` 2) dataset 
+    let deltas = map (calculateDelta weights) batch
+        adjustedDeltas = adjustDeltas deltas batch  
+        newW0 = w0 - alpha * avg deltas 
+        newW1 = w1 - alpha * avg adjustedDeltas
+    return [newW0, newW1]
     where 
-        t0 = thetas !! 0
-        t1 = thetas !! 1
+        w0 = weights !! 0
+        w1 = weights !! 1
     
 -- Calculates the difference between h(x) and y
 calculateDelta :: [Double] -> [Double] -> Double
-calculateDelta thetas row = t0 + t1 * x - y
+calculateDelta weights row = w0 + w1 * x - y
   where
-    t0 = thetas !! 0
-    t1 = thetas !! 1
+    w0 = weights !! 0
+    w1 = weights !! 1
     x = row !! 0
     y = row !! 1
 

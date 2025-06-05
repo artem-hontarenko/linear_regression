@@ -1,6 +1,6 @@
 module Main where
 
-import LinearRegression (newThetas)
+import LinearRegression (newWeights)
 import Data.List (intercalate)
 import System.Environment (getArgs)
 import CSV
@@ -24,53 +24,49 @@ main = do
             let trainData = parseCSV trainContent
                 testData = parseCSV testContent
                 
-                -- Initialize coefficients with zeros [t0, t1]
-                initialThetas = [0.0, 0.0]
+                -- Initialize coefficients with zeros [w0, w1]
+                initialWeights = [0.0, 0.0]
             
             -- Train model with progress reporting
-            finalThetas <- trainWithProgress initialThetas alpha trainData iterations
+            finalWeights <- trainWithProgress initialWeights alpha trainData iterations iterations
             
             -- Make predictions on test data
             let testFeatures = map (!! 0) testData  -- Extract x values
                 testLabels = map (!! 1) testData    -- Extract y values
-                predictions = map (predict finalThetas) testFeatures
+                predictions = map (predict finalWeights) testFeatures
                 
                 -- Calculate final MSEs
                 trainFeatures = map (!! 0) trainData
                 trainLabels = map (!! 1) trainData
-                trainPredictions = map (predict finalThetas) trainFeatures
+                trainPredictions = map (predict finalWeights) trainFeatures
                 trainMSE = mse trainPredictions trainLabels
                 testMSE = mse predictions testLabels
             
             -- Print results
             putStrLn "\nFinal Model Coefficients:"
-            putStrLn $ "t0 (intercept): " ++ show (finalThetas !! 0)
-            putStrLn $ "t1 (slope): " ++ show (finalThetas !! 1)
-            
-            putStrLn "\nPredictions on Test Dataset:"
-            putStrLn $ intercalate "\n" $ map show predictions
+            putStrLn $ "w0 (intercept): " ++ show (finalWeights !! 0)
+            putStrLn $ "w1 (slope): " ++ show (finalWeights !! 1)
             
             putStrLn "\nEvaluation Metrics:"
             putStrLn $ "Training MSE: " ++ show trainMSE
             putStrLn $ "Test MSE: " ++ show testMSE
 
 -- Train the model and print MSE after each iteration
-trainWithProgress :: [Double] -> Double -> [[Double]] -> Int -> IO [Double]
-trainWithProgress thetas _ _ 0 = return thetas
-trainWithProgress thetas alpha dataset iterations = do
-    let updatedThetas = newThetas thetas alpha dataset
-        features = map (!! 0) dataset  -- Extract x values
+trainWithProgress :: [Double] -> Double -> [[Double]] -> Int -> Int -> IO [Double]
+trainWithProgress weights _ _ 0  _ = return weights
+trainWithProgress weights alpha dataset iterations maxIter = do
+    updatedWeights <- newWeights weights alpha dataset  
+    let features = map (!! 0) dataset  -- Extract x values
         labels = map (!! 1) dataset    -- Extract y values
-        predictions = map (predict updatedThetas) features
+        predictions = map (predict updatedWeights) features  
         currentMSE = mse predictions labels
     
     putStrLn $ "Iteration " ++ show (maxIter - iterations + 1) ++ 
                " of " ++ show maxIter ++ 
                ", MSE: " ++ show currentMSE
     
-    trainWithProgress updatedThetas alpha dataset (iterations - 1)
-    where maxIter = iterations
+    trainWithProgress updatedWeights alpha dataset (iterations - 1) maxIter
 
--- Simple prediction function for y = t0 + t1*x
-predict :: [Double] -> Double -> Double
-predict thetas x = (thetas !! 0) + (thetas !! 1) * x
+-- Simple prediction function for y = w0 + w1*x
+predict :: [Double] -> Double -> Double  
+predict weights x = (weights !! 0) + (weights !! 1) * x
