@@ -146,7 +146,7 @@ Example:
 ## Usage Example
 
 ```bash
-ghc Main.hs
+ghc Main.hs -o linear_regression
 ./linear_regression train.csv test.csv 0.01 1000
 ```
 
