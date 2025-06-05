@@ -168,6 +168,8 @@ The program provides:
 In **notebook.ipynb** visulization of the predictions is implemented. Moreover, it is possibe to compare the predicted weights by Haskell model with the weights predicted by the built in model from skelearn library.
 The notebook also includes a data prepraraion part. 
 
+**Importatant note**: in the current version of the notebook saving of the train_data.csv and test_data.csv is commented out to avoid rewriting of the data because the CSV parser expects to have data without name of the columns so they should be deleted manually every time one rewrites the data. 
+
 ## Dependencies
 
 - `System.Random`: For random sampling
