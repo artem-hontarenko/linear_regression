@@ -111,7 +111,7 @@ Model evaluation metrics.
 ##### `mse :: [Double] -> [Double] -> Double`
 Calculates Mean Squared Error between predicted and actual values.
 
-**Formula**: `MSE = Σ(predicted - actual)² / n`
+**Formula**: $MSE = \sum(predicted - actual)^2 / n$
 
 ### RandomSampling.hs
 
