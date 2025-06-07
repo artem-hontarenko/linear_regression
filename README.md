@@ -7,8 +7,8 @@ This project implements a multiple linear regression algorithm in Haskell using 
 ## Usage Example
 
 ```bash
-ghc Main.hs
-./linear_regression train.csv test.csv 0.01 1000
+ghc Main -o linear_regression
+./linear_regression train_data.csv test_data.csv 0.01 1000
 ```
 
 This command:
