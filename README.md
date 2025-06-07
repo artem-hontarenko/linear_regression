@@ -73,4 +73,6 @@ Returns some specified number of randomly picked lists from the lists of lists.
 
 ## Reference to the dataset
 
-The datasets for training and testing of the model were derived from the following dataset — https://www.kaggle.com/datasets/yasserh/student-marks-dataset
+The datasets for training and testing of the model were derived from the following datasets:
+- https://www.kaggle.com/datasets/yasserh/student-marks-dataset
+- https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression
