@@ -13,7 +13,7 @@ main = do
     if length args < 4
         then putStrLn "Usage: <program> <train_file.csv> <test_file.csv> <learning_rate> <iterations>"
         else do
-            let trainFile = args !! 0
+            let trainFile = head args
                 testFile = args !! 1
                 alpha = read (args !! 2) :: Double
                 iterations = read (args !! 3) :: Int
@@ -24,28 +24,34 @@ main = do
             let trainData = parseCSV trainContent
                 testData = parseCSV testContent
                 
-                -- Initialize coefficients with zeros [w0, w1]
-                initialWeights = [0.0, 0.0]
+                -- Determine number of features 
+                numFeatures = length (head trainData) - 1
+                
+                -- Initialize weights
+                initialWeights = replicate (numFeatures + 1) 0.0
+            
+            putStrLn $ "Training model with " ++ show numFeatures ++ " features..."
             
             -- Train model with progress reporting
             finalWeights <- trainWithProgress initialWeights alpha trainData iterations iterations
             
             -- Make predictions on test data
-            let testFeatures = map (!! 0) testData  -- Extract x values
-                testLabels = map (!! 1) testData    -- Extract y values
+            let testFeatures = map init testData     
+                testLabels = map last testData       
                 predictions = map (predict finalWeights) testFeatures
                 
                 -- Calculate final MSEs
-                trainFeatures = map (!! 0) trainData
-                trainLabels = map (!! 1) trainData
+                trainFeatures = map init trainData
+                trainLabels = map last trainData
                 trainPredictions = map (predict finalWeights) trainFeatures
                 trainMSE = mse trainPredictions trainLabels
                 testMSE = mse predictions testLabels
             
             -- Print results
             putStrLn "\nFinal Model Coefficients:"
-            putStrLn $ "w0 (intercept): " ++ show (finalWeights !! 0)
-            putStrLn $ "w1 (slope): " ++ show (finalWeights !! 1)
+            putStrLn $ "w0 (intercept): " ++ show (head finalWeights)
+            mapM_ (\(i, coef) -> putStrLn $ "w" ++ show i ++ ": " ++ show coef) 
+                  (zip [1..] (tail finalWeights))
             
             putStrLn "\nEvaluation Metrics:"
             putStrLn $ "Training MSE: " ++ show trainMSE
@@ -56,8 +62,9 @@ trainWithProgress :: [Double] -> Double -> [[Double]] -> Int -> Int -> IO [Doubl
 trainWithProgress weights _ _ 0  _ = return weights
 trainWithProgress weights alpha dataset iterations maxIter = do
     updatedWeights <- newWeights weights alpha dataset  
-    let features = map (!! 0) dataset  -- Extract x values
-        labels = map (!! 1) dataset    -- Extract y values
+    
+    let features = map init dataset     
+        labels = map last dataset       
         predictions = map (predict updatedWeights) features  
         currentMSE = mse predictions labels
     
@@ -67,6 +74,7 @@ trainWithProgress weights alpha dataset iterations maxIter = do
     
     trainWithProgress updatedWeights alpha dataset (iterations - 1) maxIter
 
--- Simple prediction function for y = w0 + w1*x
-predict :: [Double] -> Double -> Double  
-predict weights x = (weights !! 0) + (weights !! 1) * x
+-- Multiple features prediction function for y = w0 + w1*x1 + w2*x2 + ... + wn*xn
+predict :: [Double] -> [Double] -> Double
+predict weights features = 
+    head weights + sum (zipWith (*) (tail weights) features)
