@@ -28,4 +28,4 @@ ithFeatureColumn :: Int -> [[Double]] -> [Double]
 ithFeatureColumn columnID = map (!! columnID)   
 
 -- Compute average value for the list
-avg xs = realToFrac (sum xs) / genericLength xs
+avg xs =  sum xs / genericLength xs
